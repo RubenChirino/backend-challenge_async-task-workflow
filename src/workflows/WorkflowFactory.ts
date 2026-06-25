@@ -16,6 +16,7 @@ export enum WorkflowStatus {
 interface WorkflowStep {
     taskType: string;
     stepNumber: number;
+    dependsOn?: number;
 }
 
 interface WorkflowDefinition {
@@ -24,7 +25,7 @@ interface WorkflowDefinition {
 }
 
 export class WorkflowFactory {
-    constructor(private dataSource: DataSource) {}
+    constructor(private dataSource: DataSource) { }
 
     /**
      * Creates a workflow by reading a YAML file and constructing the Workflow and Task entities.
@@ -38,18 +39,18 @@ export class WorkflowFactory {
         const workflowDef = yaml.load(fileContent) as WorkflowDefinition;
         const workflowRepository = this.dataSource.getRepository(Workflow);
         const taskRepository = this.dataSource.getRepository(Task);
-        const workflow = new Workflow();
 
+        const workflow = new Workflow();
         workflow.clientId = clientId;
         workflow.status = WorkflowStatus.Initial;
-
         const savedWorkflow = await workflowRepository.save(workflow);
 
-        const invalidStep = workflowDef.steps.find(step => !isValidTaskType(step.taskType));
-        if (invalidStep) {
+        try {
+            this.validateSteps(workflowDef.steps);
+        } catch (error) {
             savedWorkflow.status = WorkflowStatus.Failed;
             await workflowRepository.save(savedWorkflow);
-            throw new Error(`Unknown taskType "${invalidStep.taskType}" in workflow definition.`);
+            throw error;
         }
 
         const tasks: Task[] = workflowDef.steps.map(step => {
@@ -63,8 +64,38 @@ export class WorkflowFactory {
             return task;
         });
 
+        const taskByStepNumber = new Map(tasks.map((task): [number, Task] => [task.stepNumber, task]));
+        for (const step of workflowDef.steps) {
+            if (step.dependsOn !== undefined) {
+                const currentTask = taskByStepNumber.get(step.stepNumber);
+                const dependencyTask = taskByStepNumber.get(step.dependsOn);
+                if (currentTask && dependencyTask) {
+                    currentTask.dependency = dependencyTask;
+                }
+            }
+        }
+
         await taskRepository.save(tasks);
 
         return savedWorkflow;
+    }
+
+    private validateSteps(steps: WorkflowStep[]): void {
+        const stepNumbers = new Set(steps.map(step => step.stepNumber));
+
+        for (const step of steps) {
+            if (!isValidTaskType(step.taskType)) {
+                throw new Error(`Unknown taskType "${step.taskType}" in workflow definition.`);
+            }
+
+            if (step.dependsOn !== undefined) {
+                if (!stepNumbers.has(step.dependsOn)) {
+                    throw new Error(`Step ${step.stepNumber} depends on unknown step ${step.dependsOn}.`);
+                }
+                if (step.dependsOn >= step.stepNumber) {
+                    throw new Error(`Step ${step.stepNumber} cannot depend on step ${step.dependsOn}: a dependency must have a lower stepNumber.`);
+                }
+            }
+        }
     }
 }
