@@ -1,3 +1,4 @@
+# See all the available workflow taskTypes in "src/jobs/JobFactory.ts"
 name: "example_workflow"
 steps:
   - taskType: "analysis"
