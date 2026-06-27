@@ -1,0 +1,23 @@
+{
+    "$schema": "https://codesandbox.io/schemas/tasks.json",
+    "setupTasks": [
+        {
+            "name": "Install dependencies",
+            "command": "yarn install"
+        }
+    ],
+    "tasks": {
+        "dev": {
+            "name": "Start dev server",
+            "command": "yarn dev",
+            "runAtStart": true,
+            "preview": {
+                "port": 3000
+            }
+        },
+        "test": {
+            "name": "Run tests",
+            "command": "yarn test"
+        }
+    }
+}
