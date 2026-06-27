@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "Backend Challenge - Endpoints",
+    "description": "Ready to use requests for the Backend Challenge API. Set the `baseUrl` variable (defaults to http://localhost:3000). Typical flow: create a workflow with POST /analysis, copy the returned workflowId, poll GET /workflow/:id/status, and fetch GET /workflow/:id/results once the status is completed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Workflow",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clientId\": \"client123\",\n  \"geoJson\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n      [\n        [-63.624885020050996, -10.311050368263523],\n        [-63.624885020050996, -10.367865108370523],\n        [-63.61278302732815, -10.367865108370523],\n        [-63.61278302732815, -10.311050368263523],\n        [-63.624885020050996, -10.311050368263523]\n      ]\n    ]\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/analysis",
+          "host": ["{{baseUrl}}"],
+          "path": ["analysis"]
+        },
+        "description": "Creates a workflow from the YAML definition and queues its tasks. Returns the workflowId."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Workflow Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/workflow/:id/status",
+          "host": ["{{baseUrl}}"],
+          "path": ["workflow", ":id", "status"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Workflow ID returned by POST /analysis"
+            }
+          ]
+        },
+        "description": "Returns the workflow status with completed and total task counts. 404 if it does not exist."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Workflow Results",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/workflow/:id/results",
+          "host": ["{{baseUrl}}"],
+          "path": ["workflow", ":id", "results"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Workflow ID returned by POST /analysis"
+            }
+          ]
+        },
+        "description": "Returns the aggregated finalResult of a completed workflow. 404 if it does not exist, 400 if it is not completed yet."
+      },
+      "response": []
+    }
+  ]
+}

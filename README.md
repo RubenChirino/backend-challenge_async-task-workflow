@@ -239,6 +239,10 @@ curl http://localhost:3000/workflow/<workflowId>/status
 curl http://localhost:3000/workflow/<workflowId>/results
 ```
 
+### Postman Collection
+
+A ready to import collection is available at [`backend-challenge-endpoints.postman_collection.json`](./backend-challenge-endpoints.postman_collection.json) in the project root. Import it into Postman (**Import** → drag the file) and set the `baseUrl` variable if your server runs somewhere other than `http://localhost:3000`.
+
 ### **Coding Challenge Tasks for the Interviewee**
 
 The following tasks must be completed to enhance the backend system:
