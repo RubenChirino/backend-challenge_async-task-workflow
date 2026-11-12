@@ -15,12 +15,12 @@
     "@types/geojson": "^7946.0.15",
     "bcrypt": "^5.1.1",
     "express": "^4.21.2",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.3.2",
     "jsonwebtoken": "^9.0.2",
     "marked": "^15.0.3",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.31"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
